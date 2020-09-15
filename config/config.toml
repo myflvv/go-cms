@@ -1,0 +1,8 @@
+[db]
+host = "127.0.0.1"
+name = "go-cms"
+user = "root"
+pass = "1q2w3e"
+port = "3306"
+charset = "utf8mb4"
+table_prefix = "c_"
