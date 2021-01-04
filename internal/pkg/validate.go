@@ -4,38 +4,63 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"go-cms/internal/app"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	zh_translations "github.com/go-playground/validator/v10/translations/zh"
+	"reflect"
+	"strings"
 )
 
-var Trans ut.Translator
+var trans ut.Translator
 
-func InitVali()  {
+func InitVali() (err error) {
 	uni := ut.New(zh.New())
-	Trans,_=uni.GetTranslator("zh")
+	trans,_=uni.GetTranslator("zh")
 	if v,ok:=binding.Validator.Engine().(*validator.Validate); ok {
-		_=zh_translations.RegisterDefaultTranslations(v,Trans)
-		_=v.RegisterValidation("logincheck",app.LoginFormatCheck)
-
-		//_=v.RegisterTranslation("logincheck", Trans, func(ut ut.Translator) error {
-		//	return ut.Add("logincheck", "{0}不能早于当前时间或{1}格式错误!", true)
-		//}, func(ut ut.Translator, fe validator.FieldError) string {
-		//	t, _ := ut.T("logincheck", fe.Field(), fe.Field())
-		//	return t
-		//})
+		v.RegisterTagNameFunc(func(field reflect.StructField) string {
+			name := strings.SplitN(field.Tag.Get("label"),",", 2)[0]
+			if name == "-" {
+				return ""
+			}
+			return name
+		})
+		//_=v.RegisterValidation("logincheck",app.LoginFormatCheck)
+		err = zh_translations.RegisterDefaultTranslations(v,trans)
+		return
 	}
+	return
 }
 
-func Request(c *gin.Context,request interface{}) error {
+func Verify(request interface{},c *gin.Context) error {
+	_=InitVali()
 	err:=c.ShouldBind(request)
 	if err!=nil {
-		RespJson(c,&ResponseData{
+		var msg interface{}
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			msg = err.Error()
+		}else {
+			msg = removeTostring(errs.Translate(trans))
+		}
+		RespJson(&ResponseData{
 			Code:CODE_FAULT,
-			Msg:err.Error(),
-		})
+			Msg:msg,
+		},c)
 		return err
 	}
 	return nil
+}
+
+//转换map为string,只显示第一个错误信息
+func removeTostring(fields map[string]string) string {
+	//只显示第一个错误
+	i:=0
+	var res string
+	for _, err := range fields {
+		if i==0 {
+			res=err
+		}
+		i++
+	}
+	return res
 }

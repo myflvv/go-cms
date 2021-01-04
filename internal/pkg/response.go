@@ -12,10 +12,10 @@ const (
 
 type ResponseData struct {
 	Code int `json:"code"`
-	Msg string `json:"msg"`
+	Msg interface{} `json:"msg"`
 	Data interface{} `json:"data"`
 }
 
-func RespJson(c *gin.Context,res *ResponseData)  {
+func RespJson(res *ResponseData,c *gin.Context)  {
 	c.JSON(http.StatusOK,res)
 }

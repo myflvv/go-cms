@@ -20,7 +20,7 @@ func main()  {
 	//http.HandleFunc("/",say)
 	//log.Fatal(http.ListenAndServe(":8091",nil))
 	pkg.InitLog()
-	pkg.InitVali()
+	//pkg.InitVali()
 	router:=gin.Default()
 	v1:=router.Group("/v1")
 	{
