@@ -20,19 +20,20 @@ func main()  {
 	//http.HandleFunc("/",say)
 	//log.Fatal(http.ListenAndServe(":8091",nil))
 	pkg.InitLog()
+	pkg.InitVali()
 	router:=gin.Default()
 	v1:=router.Group("/v1")
 	{
-		v1.GET("/", func(c *gin.Context) {
+		v1.GET("/v1/migrate", func(c *gin.Context) {
 			//v := config.GetString("db.host")
 			//fmt.Println(v)
 			//pkg.Logger.Warn("test")
 			pkg.Dao.AutoMigrate(&schema.Menu{},&schema.User{})
 		})
-		v1.POST("/test",api.Login)
+		v1.POST("/login",api.Login)
 	}
 
-	log.Fatal(router.Run(":8091"))
+	log.Fatal(router.Run(":8090"))
 }
 
 //func say(w http.ResponseWriter,r *http.Request)  {

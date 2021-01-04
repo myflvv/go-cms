@@ -1,16 +1,21 @@
 package app
 
 import (
-	"fmt"
-	"go-cms/schema"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
-type User struct {
-	*schema.User
-	Website string `form:"website"`
+
+type LoginStru struct {
+	Username string `form:"username" binding:"required,logincheck"`
+	Password string `form:"password" binding:"required"`
 }
 
-func (p *User) Login()  {
-	fmt.Println(p.Username)
-	fmt.Println(p.Website)
+func LoginFormatCheck(f1 validator.FieldLevel) bool {
+	return false
+}
+func (p *LoginStru) Login(c *gin.Context) {
+	p.Password="ss"+p.Password
+	//pkg.Dao.Create(&p)
+	//c.JSON(http.StatusOK,pkg.ResJsonData{Code:200,Msg:"test"})
 }
